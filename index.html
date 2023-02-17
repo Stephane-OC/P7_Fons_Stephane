@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Site de recette de cuisine">
+    <link rel="stylesheet" href="./assets/sass/css/style.css" />
+    <link rel="icon" type="image/svg" href="./assets/img/favicon.svg">
+    <script src="scripts/utils/font-awesome.js"></script>
+    
+    <body>
+        <header>
+            <img src="./assets/img/logo.png" alt="Logo Les petits plats">   
+        </header>
+        <main>
+            <section id="find-section">
+                <div id="find-bar">
+                    <input 
+                        type="text" 
+                        id="main-find" 
+                        placeholder="Rechercher un ingrédient, appareil, ustensile ou une recette">
+                    <button 
+                        type="submit" 
+                        class="find-btn-icon">
+                        <i class="fas fa-2x fa-search"></i>
+                    </button>
+                </div>
+                <div id="find-tag"></div>
+                <div id="advanced-find-contain">
+    
+                    <div 
+                        id="ingredients-find" 
+                        class="advanced-find" 
+                        ata-type="ingrédients">
+                        <div class="find-btn-align">
+                            <input 
+                                type="text" 
+                                name="ingredients" 
+                                class="input-tag" 
+                                id="ingredients" 
+                                placeholder="Ingrédients">
+                            <div class="find-btn">
+                                <i class="fas fa-chevron-down" 
+                                id="ingredients-chevron"></i>
+                            </div>
+                        </div>
+                        <div id="ingredients-contain" 
+                        class="ul-contain">
+                            <ul id="ingredients-list" 
+                            class="li-list"></ul>
+                        </div>
+                    </div>
+    
+                    <div 
+                        id="appliances-find" 
+                        class="advanced-find" 
+                        data-type="appliances">
+                        <div class="find-btn-align">
+                            <input 
+                                type="text" 
+                                name="appareils" 
+                                id="appliances" 
+                                class="input-tag" 
+                                placeholder="Appareils">
+                            <div class="find-btn">
+                                <i class="fas fa-chevron-down" id="appliances-chevron"></i>
+                            </div>
+                        </div>
+                        <div id="appliances-contain" class="ul-contain">
+                            <ul id="appliances-list" class="li-list"></ul>
+                        </div>
+                    </div>
+    
+                    <div 
+                        id="ustensils-find" 
+                        class="advanced-find" 
+                        data-type="ustensils">
+                        <div class="find-btn-align">
+                            <input 
+                                type="text" 
+                                name="ustensiles" 
+                                id="ustensils" 
+                                class="input-tag" 
+                                placeholder="Ustensiles">
+                            <div class="find-btn">
+                                <i class="fas fa-chevron-down" id="ustensils-chevron"></i>
+                            </div>
+                        </div>
+                        <div id="ustensils-contain" class="ul-contain">
+                            <ul id="ustensils-list" class="li-list"></ul>
+                        </div>
+                    </div>
+    
+                    <section id="recipes-contain">
+                        <template id="template_recipe">
+                            <article class="recipe">
+                                <div class="recipe-details">
+                                    <h2 class="recipe-title"></h2>
+                                    <span class="recipe-time"></span>
+                                    <ul class="recipe-ingredients"></ul>
+                                    <p class="recipe-description"></p>
+                                </div>
+                            </article>
+                        </template>
+                    </section>
+    
+                </div>
+            </section>
+            
+        </main>
+        
+        <script src="./scripts/factories/recipesFactory.js" type="module"></script>
+        <script src="./scripts/main.js" type="module"></script>
+        
+    </body>
+</html>

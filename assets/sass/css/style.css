@@ -1,0 +1,280 @@
+@charset "UTF-8";
+@import url("https://fonts.googleapis.com/css2?family=Lato:wght@100;300;400;700;900&display=swap");
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "lato", sans-serif;
+  margin: auto;
+  max-width: 1280px;
+  font-size: 18px;
+}
+
+input {
+  border: none;
+  background-color: transparent;
+}
+
+button {
+  border: none;
+}
+
+.find-btn-icon {
+  background-color: #e7e7e7;
+}
+
+header {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  align-items: center;
+  margin: auto;
+  width: 268px;
+  color: #d04f4f;
+}
+
+header img {
+  width: 300px;
+}
+
+h1 {
+  margin: 0;
+}
+
+ul {
+  list-style-type: none;
+}
+
+#recipes-contain {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 30px;
+  gap: 50px;
+}
+
+.recipes {
+  width: 379px;
+  height: 380px;
+}
+
+.recipe-img {
+  width: 100%;
+  height: 50%;
+  background-color: #C7BEBE;
+}
+
+.recipe-details {
+  height: 50%;
+  background-color: #e7e7e7;
+}
+
+.recipes-ingredients {
+  margin-right: 0px;
+}
+
+.recipe-head-text {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 10px;
+}
+
+.recipe-head-text h2 {
+  font-size: 18px;
+}
+
+.contain-details {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0px;
+  font-size: 12px;
+}
+
+.recipes-ingrédients {
+  list-style-type: none;
+  width: 45%;
+  padding: 0em;
+}
+
+.recipes-description {
+  width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#find-section {
+  margin: 20px 0 0 0;
+}
+
+#find-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #e7e7e7;
+  height: 69px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+}
+
+#main-find {
+  background-color: #e7e7e7;
+  width: 100%;
+  height: 69px;
+}
+
+#advanced-find-contain {
+  display: flex;
+  justify-self: start;
+  flex-wrap: wrap;
+}
+
+.find-btn {
+  margin-left: 15px;
+}
+
+.advanced-find {
+  margin-right: 20px;
+  margin-top: 20px;
+  height: 69px;
+  border-radius: 5px;
+}
+
+.find-btn-align input::placeholder {
+  color: white;
+  font-size: 1.4em;
+}
+
+.find-btn-align {
+  display: flex;
+  align-items: center;
+  height: 69px;
+  padding: 0 20px 0 20px;
+}
+
+#ingredients-find {
+  background-color: #3282f7;
+}
+
+#appliances-find {
+  background-color: #68d9a4;
+}
+
+#ustensils-find {
+  background-color: #ed6454;
+}
+
+.fa-chevron-down {
+  color: white;
+}
+
+.ul-contain {
+  transform: scale(0);
+  position: absolute;
+  overflow-y: auto;
+  z-index: 1;
+  width: 667px;
+  max-height: 397px;
+  padding: 18px 25px 15px 25px;
+  top: 330px;
+  background-color: inherit;
+  border-radius: 0 0 5px 5px;
+  transition: transform 280ms;
+  transform-origin: top left;
+}
+
+.advanced-find.active .ul-contain {
+  transform: scale(1);
+}
+
+.advanced-find.active {
+  width: 667px;
+}
+
+.input-tag {
+  width: 100%;
+  height: 20px;
+  color: white;
+  outline: none;
+}
+
+.li-list {
+  list-style-type: none;
+  column-count: 3;
+  margin: 0;
+  padding: 0;
+  color: white;
+}
+
+.li-list li:hover {
+  transform: scaleX(1.1);
+}
+
+#find-tag {
+  display: flex;
+  margin-top: 20px;
+  height: 50px;
+}
+
+.tag {
+  padding-right: 5px;
+}
+
+.close-button {
+  cursor: pointer;
+}
+
+.li-list li {
+  margin: 10px;
+}
+
+.ingredients-inlinetag,
+.appliances-inlinetag,
+.ustensils-inlinetag {
+  display: none;
+}
+
+.ingredients-inlinetag.active {
+  display: inline-flex;
+  background-color: #3282f7;
+  margin-left: 10px;
+  align-items: center;
+  padding: 10px;
+  border-radius: 5px;
+  width: auto;
+  color: white;
+}
+
+.appliances-inlinetag.active {
+  display: inline-flex;
+  background-color: #68d9a4;
+  margin-left: 10px;
+  align-items: center;
+  padding: 10px;
+  border-radius: 5px;
+  width: auto;
+  color: white;
+}
+
+.ustensils-inlinetag.active {
+  display: inline-flex;
+  background-color: #ed6454;
+  margin-left: 10px;
+  align-items: center;
+  padding: 10px;
+  border-radius: 5px;
+  width: auto;
+  color: white;
+}
+
+.items-ingredients,
+.items-appliances,
+.items-ustensils {
+  margin-right: 5px;
+}
+
+.item {
+  cursor: pointer;
+}
+
+/*# sourceMappingURL=style.css.map */

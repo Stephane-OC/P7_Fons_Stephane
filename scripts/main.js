@@ -17,6 +17,8 @@ const utensilsSearch = document.getElementById("ustensils");
 
 const cssProperties = document.querySelectorAll(".advanced-find");
 let recipesFiltered = [];
+let tagArrayselected = [];
+
 
 
  /*  "displayRecipes" function retrieves "recipesContain" DOM element, clears its content,             **
@@ -31,8 +33,6 @@ function displayRecipes(recipes) {
     recipesContain.appendChild(recipeDom);
   });
 }
-
-displayRecipes(recipes);
 
 function activateList(cssProperties) {
   cssProperties.classList.add("active");
@@ -160,7 +160,6 @@ function ustensilsDisplay(recipes) {
   for (let k = 0; k < recipes.length; k++) {
     recipes[k].ustensils.forEach((u) => allUstensils.push(u.toLowerCase()));
   }
-
   let uniqueUstensils = allUstensils
     .filter((item, index) => allUstensils.indexOf(item) === index)
     .sort();
@@ -174,6 +173,7 @@ function ustensilsDisplay(recipes) {
     listUstensils.innerHTML += `<li class="item ustensils-result" data-value='${filteredUstensils[l]}'>${filteredUstensils[l]}</li>`;
   }
 }
+
 
 
 /*  "findSearch" function adds event listener to search input element, filters recipe           **
@@ -255,6 +255,126 @@ function normalizeString(str) {
   return replacedStr;
 }
 
+/*  "addTag" function adds a selected tag to search bar and updates filters.          **
+**  Function creates a new div element for selected tag, sets its class based         **
+**  on tag type,and appends to search bar. deactivates corresponding result list and  **
+**  updates filter by filtering recipes based on selected tag value. Finally,         **
+**  "mediaUpdate" function is called to update UI with filtered recipes.              */
+
+function addTag() {
+  const ingredientsFilter = document.querySelectorAll(".ingredients-result");
+  const appareilsFilter = document.querySelectorAll(".appareils-result");
+  const ustensilsFilter = document.querySelectorAll(".ustensils-result");
+
+  const addTagList = (event, nom, type, index, input) => {
+    let selectedTag = event.target.innerText;
+    const filterTag = document.querySelector("#find-tag");
+    let selectedTagContainer = document.createElement("div");
+    selectedTagContainer.innerHTML = "";
+    selectedTagContainer.classList.add("" + type + "-inlinetag");
+    selectedTagContainer.classList.add("active");
+    selectedTagContainer.innerHTML = `<div class='items-${type}' tag'>${selectedTag}</div> <i class='far fa-times-circle close-button'></i>`;
+    filterTag.appendChild(selectedTagContainer);
+
+    deactivateList(cssProperties[index], input, nom);
+
+    tagArrayselected.push(selectedTag);
+
+    const array = recipesFiltered.length == 0 ? recipes : recipesFiltered;
+    recipesFiltered = array.filter((recipe) => {
+      switch (index) {
+        case 0:
+          return recipe.ingredients.some((el) => el.ingredient.toLowerCase().includes(selectedTag.toLowerCase()));
+        case 1:
+          return recipe.appliance.toLowerCase().includes(selectedTag.toLowerCase());
+        case 2:
+          return recipe.ustensils.some((el) => el.toLowerCase().includes(selectedTag.toLowerCase()));
+        default:
+          return false;
+      }
+    });
+
+    mediaUpdate(recipesFiltered);
+  };
+
+  for (let i = 0; i < ingredientsFilter.length; i++) {
+    ingredientsFilter[i].addEventListener("click", (e) => {
+      addTagList(e, "Ingrédients", "ingredients", 0, ingredientsSearch);
+    });
+  }
+
+  for (let i = 0; i < appareilsFilter.length; i++) {
+    appareilsFilter[i].addEventListener("click", (e) => {
+      addTagList(e, "Appareils", "appareils", 1, appliancesSearch);
+    });
+  }
+
+  for (let i = 0; i < ustensilsFilter.length; i++) {
+    ustensilsFilter[i].addEventListener("click", (e) => {
+      addTagList(e, "Ustensiles", "ustensils", 2, utensilsSearch);
+    });
+  }
+}
+
+function closeTagButton() {
+  const closeButtons = document.querySelectorAll('.close-button');
+  for (let i = 0; i < closeButtons.length; i++) {
+      const button = closeButtons[i];
+      button.addEventListener('click', removeTag);
+  }
+}
+
+/*  "removeTag" function removes selected tag and updates filtered recipes list based on remaining tags. **
+**  Function obtains type and value of selected tag, removes tag from the UI, and updates selected       **
+**  tags array. If no tags are selected, function resets filters and displays all recipes.               **
+**  then filters recipes based on remaining tags and updates filtered recipes array. Finally, the        **
+**  function calls "mediaUpdate" function to update the UI with the new filtered recipes.                */
+
+function removeTag(event) {
+  const tagElement = event.target.closest('.active');
+  //Get type of tag (ingredients, appliances, utensils)
+  const tagType = tagElement.classList[1].slice(0, -12); 
+  //Check if 'div' tag is present in active tag
+  const tagValueElement = tagElement.querySelector('div');
+  const tagValue = tagValueElement ? tagValueElement.innerText.trim().toLowerCase() : '';
+
+  //Remove active tag
+  tagElement.remove();
+
+  //Update selected tag Array
+  const activeTags = document.querySelectorAll('.active');
+  const activeTagValues = Array.from(activeTags).map(tag => tag.querySelector('div').innerText.trim().toLowerCase());
+
+  // Reset filters if no tag is selected
+  if (activeTags.length === 0) {
+    recipesFiltered = [];
+    mediaUpdate(recipes);
+    return;
+  }
+
+  // Filter recipes based on remaining tags
+  let newFilteredRecipes = [];
+
+  for (let i = 0; i < recipes.length; i++) {
+    const recipe = recipes[i];
+    const ingredientsMatch = recipe.ingredients.some(el => activeTagValues.includes(normalizeString(el.ingredient)));
+    const applianceMatch = activeTagValues.includes(normalizeString(recipe.appliance));
+    const ustensilsMatch = recipe.ustensils.some(el => activeTagValues.includes(normalizeString(el)));
+
+    if (ingredientsMatch || applianceMatch || ustensilsMatch) {
+      newFilteredRecipes.push(recipe);
+    }
+  }
+
+  // If no tag is selected, reset filters to display all recipes
+  if (newFilteredRecipes.length === 0) {
+    newFilteredRecipes = recipes;
+  }
+
+  recipesFiltered = newFilteredRecipes;
+  mediaUpdate(recipesFiltered);
+}
+
 /*  "mediaUpdate" function updates UI to display new recipe data based on given items array. **
 **  Function first updates recipe cards by calling "displayRecipes" function, then updates   ** 
 **  ingredient, appliance, and ustensil lists by calling their respective display functions  */
@@ -263,6 +383,8 @@ function mediaUpdate(items) {
   ingredientsDisplay(items);
   applianceDisplay(items);
   ustensilsDisplay(items);
+  addTag();
+  closeTagButton();
 }
 
 /*  "clearSearch" function reset current search state by emptying the "recipesFiltered" array   **
@@ -281,5 +403,7 @@ async function init() {
   applianceDisplay(recipes);
   ustensilsDisplay(recipes);
   ingredientsDisplay(recipes);
+  addTag();
+  closeTagButton();
 }
 init();

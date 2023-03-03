@@ -245,7 +245,7 @@ ul {
   color: white;
 }
 
-.appliances-inlinetag.active {
+.appareils-inlinetag.active {
   display: inline-flex;
   background-color: #68d9a4;
   margin-left: 10px;

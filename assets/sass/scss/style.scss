@@ -69,11 +69,15 @@ ul {
   width: 100%;
   height: 50%;
   background-color: #C7BEBE;
+  border-top-right-radius: 5px;
+  border-top-left-radius: 5px;
 }
 
 .recipe-details {
   height: 50%;
   background-color: $second-color;
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
 }
 
 .recipes-ingredients {
@@ -169,6 +173,7 @@ ul {
 
 #ustensils-find {
   background-color: $utensil-color;
+  
 }
 
 .fa-chevron-down {

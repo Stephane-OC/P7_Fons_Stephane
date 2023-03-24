@@ -18,7 +18,7 @@ const appliancesSearch = document.getElementById("appliances");
 const utensilsSearch = document.getElementById("ustensils");
 
 const cssProperties = document.querySelectorAll(".advanced-find");
-let recipesFiltered = [];
+let recipesFiltered = recipes;
 let tagArrayselected = [];
 let stringSearch = '';
 
@@ -257,8 +257,7 @@ function addTag() {
     deactivateList(cssProperties[index], input, nom);
 
     tagArrayselected.push(selectedTag);
-    const array = recipesFiltered.length == 0 ? recipes : recipesFiltered;
-    recipesFiltered = array.filter((recipe) => {
+    recipesFiltered = recipesFiltered.filter((recipe) => {
       switch (index) {
         case 0:
           return recipe.ingredients.some((el) => el.ingredient.toLowerCase().includes(selectedTag.toLowerCase()));
@@ -272,7 +271,12 @@ function addTag() {
     });
 
     mediaUpdate(recipesFiltered);
+
+    // Reset the input value and placeholder
+    input.value = "";
+    input.placeholder = nom;
   };
+  
 
   for (let i = 0; i < ingredientsFilter.length; i++) {
     ingredientsFilter[i].addEventListener("click", (e) => {
@@ -318,7 +322,7 @@ function closeTagButton() {
 function removeTag(event) {
   const tagElement = event.target.closest('.active');
   
-  //Remove active tag
+  // Remove active tag
   tagElement.remove();
 
   // Get list of active ingredients, appliances, and ustensils tags from their respective containers and convert them to lowercase
@@ -327,15 +331,33 @@ function removeTag(event) {
   const activeUstensils = Array.from(document.querySelectorAll('.ustensils-inlinetag.active div')).map(tag => tag.innerText.trim().toLowerCase());
 
   // Filter recipes based on remaining tags
-  recipesFiltered = recipes.filter(recipe => {
-    const ingredientsMatch = activeIngredients.length === 0 || recipe.ingredients.some(el => activeIngredients.includes(normalizeString(el.ingredient)));
-    const applianceMatch = activeAppliances.length === 0 || activeAppliances.includes(normalizeString(recipe.appliance));
-    const ustensilsMatch = activeUstensils.length === 0 || recipe.ustensils.some(el => activeUstensils.includes(normalizeString(el)));
-
+  const filteredRecipes = recipes.filter((recipe) => {
+    const ingredientsMatch =
+      activeIngredients.length === 0 ||
+      recipe.ingredients.some((el) =>
+        activeIngredients.some((ingredient) =>
+          el.ingredient.toLowerCase().includes(ingredient)
+        )
+      );
+    const applianceMatch =
+      activeAppliances.length === 0 ||
+      activeAppliances.some((appliance) =>
+        normalizeString(recipe.appliance).includes(appliance)
+      );
+    const ustensilsMatch =
+      activeUstensils.length === 0 ||
+      recipe.ustensils.some((el) =>
+        activeUstensils.some((ustensil) =>
+          normalizeString(el).includes(ustensil)
+        )
+      );
     return ingredientsMatch && applianceMatch && ustensilsMatch;
   });
-
-  // Call mainSearchBarFilter to update the results based on the main search and remaining tags
+  
+  // Update recipesFiltered with the filtered recipes
+  recipesFiltered = filteredRecipes;
+  // Call mediaUpdate to update the displayed recipes
+  mediaUpdate(recipesFiltered);
   mainSearchBarFilter();
 }
 
@@ -348,32 +370,58 @@ function removeTag(event) {
 **  "searchFilteredRecipes" list. After filtering recipes, it updates displayed            **
 **  recipes by calling "mediaUpdate" function with filtered list.                          */
 
-function tagManager(searchFilteredRecipes) {
-  const activeIngredients = Array.from(document.querySelectorAll('.ingredients-inlinetag.active div')).map(tag => tag.innerText.trim().toLowerCase());
-  const activeAppliances = Array.from(document.querySelectorAll('.appareils-inlinetag.active div')).map(tag => tag.innerText.trim().toLowerCase());
-  const activeUstensils = Array.from(document.querySelectorAll('.ustensils-inlinetag.active div')).map(tag => tag.innerText.trim().toLowerCase());
+function tagManager() {
+  const activeIngredients = Array.from(
+    document.querySelectorAll(".ingredients-inlinetag.active div")
+  ).map((tag) => tag.innerText.trim().toLowerCase());
+  const activeAppliances = Array.from(
+    document.querySelectorAll(".appareils-inlinetag.active div")
+  ).map((tag) => tag.innerText.trim().toLowerCase());
+  const activeUstensils = Array.from(
+    document.querySelectorAll(".ustensils-inlinetag.active div")
+  ).map((tag) => tag.innerText.trim().toLowerCase());
 
-  // Reset filters if no tag is selected
-  if (activeIngredients.length === 0 && activeAppliances.length === 0 && activeUstensils.length === 0) {
-    recipesFiltered = searchFilteredRecipes;
-    mediaUpdate(searchFilteredRecipes);
+  const searchString = mainFindSearch.value.toLowerCase().trim();
+
+  // Reset filters if no tag is selected and there is no search string
+  if (
+    activeIngredients.length === 0 &&
+    activeAppliances.length === 0 &&
+    activeUstensils.length === 0 &&
+    searchString.length === 0
+  ) {
+    recipesFiltered = recipes;
+    mediaUpdate(recipesFiltered);
     return;
   }
 
-  // Filter recipes based on remaining tags
-  recipesFiltered = searchFilteredRecipes.filter(recipe => {
-    const ingredientsMatch = activeIngredients.length === 0 || recipe.ingredients.some(el => activeIngredients.includes(normalizeString(el.ingredient)));
-    const applianceMatch = activeAppliances.length === 0 || activeAppliances.includes(normalizeString(recipe.appliance));
-    const ustensilsMatch = activeUstensils.length === 0 || recipe.ustensils.some(el => activeUstensils.includes(normalizeString(el)));
-
-    return ingredientsMatch && applianceMatch && ustensilsMatch;
+  // Filter recipes based on remaining tags and search string
+  recipesFiltered = recipes.filter((recipe) => {
+    const ingredientsMatch =
+      activeIngredients.length === 0 ||
+      recipe.ingredients.some((el) =>
+        activeIngredients.includes(el.ingredient.toLowerCase().trim())
+      );
+    const applianceMatch =
+      activeAppliances.length === 0 ||
+      activeAppliances.includes(recipe.appliance.toLowerCase().trim());
+    const ustensilsMatch =
+      activeUstensils.length === 0 ||
+      recipe.ustensils.some((el) =>
+        activeUstensils.includes(el.toLowerCase().trim())
+      );
+    const searchMatch =
+      searchString.length === 0 ||
+      recipe.name.toLowerCase().includes(searchString) ||
+      recipe.description.toLowerCase().includes(searchString) ||
+      recipe.ingredients.some((el) =>
+        el.ingredient.toLowerCase().includes(searchString)
+      );
+    return ingredientsMatch && applianceMatch && ustensilsMatch && searchMatch;
   });
 
-  // Update the displayed recipes based on the filtered list
   mediaUpdate(recipesFiltered);
 }
-
-//Main Research function
 
 
 /*  "mediaUpdate" function updates UI to display new recipe data based on given items array. **
@@ -396,7 +444,7 @@ function mediaUpdate(items) {
 **  "mainFindSearch" element is also set to listen for keyboard input, and if the "Backspace" **
 **  key is pressed, "recipesFiltered" array is reset to the full "recipes" array and          **
 **  "displayRecipes" and "mediaUpdate" functions are called to display all recipes again.     */
-
+let debounceTimer;
 async function init() {
   displayRecipes(recipes);
   displayItems(recipes, listIngredients, 'ingredients');
@@ -406,13 +454,23 @@ async function init() {
   closeTagButton();
   
   mainFindSearch.addEventListener('keyup', (e) => {
-    if (e.key == 'Backspace') {
-      const searchFilteredRecipes = stringSearch.length >= 3 ? filterSearchBar : recipes;
-      tagManager(searchFilteredRecipes);
-      displayRecipes(recipesFiltered);
+    const searchString = normalizeString(mainFindSearch.value.toLowerCase());
+  
+    if (searchString.length > 0 && searchString.length < 3) {
+      searchMessage.innerHTML = `Veuillez entrer au moins 3 caractères pour commencer à lancer une recherche.`;
+      searchMessage.style.display = 'block';
+      console.log("Search string too short.");
       mediaUpdate(recipesFiltered);
+      displayRecipes(recipesFiltered);
+    } else {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        mainSearchBarFilter();
+        tagManager(); 
+        displayRecipes(recipesFiltered);
+        mediaUpdate(recipesFiltered);
+      }, 300);
     }
-    mainSearchBarFilter();
   });
 }
 init();

@@ -423,7 +423,7 @@ function tagManager() {
   mediaUpdate(recipesFiltered);
 }
 
-//APPORTER TOUTES LES MODIFICATIONS (a part l'algo de recherche) Sur Ma branche Main
+
 /*  "mainSearchBarFilter" function is called when a user types into main search bar.            **
 **  It first normalizes input and retrieves current active tags in the page.                    **
 **  If input length is less than 3 characters and there are no active tags, it resets           **

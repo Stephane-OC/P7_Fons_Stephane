@@ -424,6 +424,7 @@ function tagManager() {
 }
 
 
+
 /*  "mediaUpdate" function updates UI to display new recipe data based on given items array. **
 **  Function first updates recipe cards by calling "displayRecipes" function, then updates   ** 
 **  ingredient, appliance, and ustensil lists by calling their respective display functions  */

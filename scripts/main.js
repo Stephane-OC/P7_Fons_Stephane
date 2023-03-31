@@ -20,7 +20,6 @@ const utensilsSearch = document.getElementById("ustensils");
 const cssProperties = document.querySelectorAll(".advanced-find");
 let recipesFiltered = recipes;
 let tagArrayselected = [];
-let stringSearch = '';
 
  /*  "displayRecipes" function retrieves "recipesContain" DOM element, clears its content,             **
  **  generates recipe cards for each item in the recipes array by using "recipesFactory"               **
@@ -190,6 +189,7 @@ function closeOtherLists(currentList, currentInput, placeholder) {
 **  listElement: DOM element containing list of items to filter                   **
 **  itemClass: CSS class name for each item in list                               **
 **  placeholder: placeholder text for input field                                 */
+
 function findSearch(inputElement, listElement, itemClass, placeholder) {
   inputElement.addEventListener('input', (event) => {
     const filterText = normalizeString(event.target.value);
@@ -271,6 +271,7 @@ function addTag() {
     });
 
     mediaUpdate(recipesFiltered);
+    closeTagButton();
 
     // Reset the input value and placeholder
     input.value = "";
@@ -310,14 +311,11 @@ function closeTagButton() {
   }
 }
 
-
-/*  "removeTag" function is called when a user clicks on an active tag to remove it.      **
-**  It first retrieves tag element and removes it from the page. It then collects         **
-**  current active ingredients, appliances, and ustensils tags and filters the recipes    **
-**  based on the remaining tags. The function considers if there are any active tags      **
-**  left and if not, it resets filter accordingly. After filtering recipes,               **
-**  function calls "mainSearchBarFilter" function to update display based on main         **
-**  search input and remaining active tags.                                               */
+/*  The "removeTag" function is called when a user clicks on an active tag to remove it.   **
+**  It first identifies clicked tag element and removes it from active tags.               **
+**  Then, it calls the "tagManager" function to filter recipes based on remaining tags.    **
+**  It also calls the "mainSearchBarFilter" and "mediaUpdate" functions to update display  **
+**  accordingly, reflecting changes in active tags.                                        */
 
 function removeTag(event) {
   const tagElement = event.target.closest('.active');
@@ -325,50 +323,19 @@ function removeTag(event) {
   // Remove active tag
   tagElement.remove();
 
-  // Get list of active ingredients, appliances, and ustensils tags from their respective containers and convert them to lowercase
-  const activeIngredients = Array.from(document.querySelectorAll('.ingredients-inlinetag.active div')).map(tag => tag.innerText.trim().toLowerCase());
-  const activeAppliances = Array.from(document.querySelectorAll('.appareils-inlinetag.active div')).map(tag => tag.innerText.trim().toLowerCase());
-  const activeUstensils = Array.from(document.querySelectorAll('.ustensils-inlinetag.active div')).map(tag => tag.innerText.trim().toLowerCase());
-
-  // Filter recipes based on remaining tags
-  const filteredRecipes = recipes.filter((recipe) => {
-    const ingredientsMatch =
-      activeIngredients.length === 0 ||
-      recipe.ingredients.some((el) =>
-        activeIngredients.some((ingredient) =>
-          el.ingredient.toLowerCase().includes(ingredient)
-        )
-      );
-    const applianceMatch =
-      activeAppliances.length === 0 ||
-      activeAppliances.some((appliance) =>
-        normalizeString(recipe.appliance).includes(appliance)
-      );
-    const ustensilsMatch =
-      activeUstensils.length === 0 ||
-      recipe.ustensils.some((el) =>
-        activeUstensils.some((ustensil) =>
-          normalizeString(el).includes(ustensil)
-        )
-      );
-    return ingredientsMatch && applianceMatch && ustensilsMatch;
-  });
-  
-  // Update recipesFiltered with the filtered recipes
-  recipesFiltered = filteredRecipes;
-  // Call mediaUpdate to update the displayed recipes
-  mediaUpdate(recipesFiltered);
+  // Call tagManager to filter recipes based on remaining tags and update the displayed recipes
+  tagManager();
   mainSearchBarFilter();
+  mediaUpdate(recipesFiltered);
 }
 
 
-/*  "tagManager" function is called to manage filtering of recipes based on the active     **
-**  tags selected by user. It receives "searchFilteredRecipes" as an argument, which is    **
-**  list of recipes filtered by main search bar input. It then retrieves active            **
-**  ingredients, appliances, and ustensils tags and filters recipes based on these tags.   **
-**  If there are no active tags, function resets filters to original                       **
-**  "searchFilteredRecipes" list. After filtering recipes, it updates displayed            **
-**  recipes by calling "mediaUpdate" function with filtered list.                          */
+/*  tagManager" function is called to manage filtering of recipes based on active             **
+**  tags selected by users. It retrieves active ingredients, appliances, and ustensils        **
+**  tags and filters recipes based on these tags. If there are no active tags and no search   **
+**  string, function resets filters to original recipe list. After filtering                  **
+**  recipes, it updates displayed recipes by calling "mediaUpdate" function with              **
+**  the filtered list.                                                                        */
 
 function tagManager() {
   const activeIngredients = Array.from(
@@ -387,11 +354,12 @@ function tagManager() {
   if (
     activeIngredients.length === 0 &&
     activeAppliances.length === 0 &&
-    activeUstensils.length === 0 &&
-    searchString.length === 0
+    activeUstensils.length === 0
   ) {
-    recipesFiltered = recipes;
-    mediaUpdate(recipesFiltered);
+    if (searchString.length === 0 || searchString.length >= 3) {
+      recipesFiltered = recipes;
+      mediaUpdate(recipesFiltered);
+    }
     return;
   }
 
@@ -424,15 +392,14 @@ function tagManager() {
 }
 
 
-/*  "mainSearchBarFilter" function is called when a user types into main search bar.            **
-**  It first normalizes input and retrieves current active tags in the page.                    **
-**  If input length is less than 3 characters and there are no active tags, it resets           **
-**  displayed recipes to show all recipes. If input length is 3 or more characters,             **
-**  it filters recipes based on the search string (input) and active tags, considering          **
-**  recipe names, ingredients, and descriptions. It then calls "tagManager", "displayRecipes"   **
-**  and "mediaUpdate" functions to update display accordingly. If search string has             **
-**  3 or more characters but no matching recipes are found, it shows a message to the user      **
-**  suggesting alternative search queries.                                                      */
+/*  "mainSearchBarFilter" function is called when a user types into main search bar.             **
+**  It first normalizes input and retrieves current active tags on page.                         **
+**  If input length is less than 3 characters, it calls the "tagManager" function with           **
+**  original recipe list. If the input length is 3 or more characters, it filters recipes based  **
+**  on search string (input) and active tags, considering recipe names, ingredients, and         **
+**  descriptions. It then calls the "tagManager" function to update displayed recipes            **
+**  based on filtered list. If search string has 3 or more characters but no matching            **
+**  recipes are found, it shows a message to user suggesting alternative search queries.         */
 
 function mainSearchBarFilter() {
   const searchString = normalizeString(mainFindSearch.value.toLowerCase());
@@ -441,8 +408,9 @@ function mainSearchBarFilter() {
   const searchMessage = document.getElementById("searchMessage");
 
   // Filter recipes based on the main search string
-  const searchFilteredRecipes = recipes.filter((recipe) => {
-    const { name, ingredients, description } = recipe;
+  const searchFilteredRecipes = [];
+  for (let i = 0; i < recipes.length; i++) {
+    const { name, ingredients, description } = recipes[i];
     const nameMatchesSearch = normalizeString(name)
       .toLowerCase()
       .includes(searchString);
@@ -460,14 +428,16 @@ function mainSearchBarFilter() {
         break;
       }
     }
-    return (
-      nameMatchesSearch || descriptionMatchesSearch || ingredientMatchesSearch
-    );
-  });
+    if (nameMatchesSearch || descriptionMatchesSearch || ingredientMatchesSearch) {
+      searchFilteredRecipes.push(recipes[i]);
+    }
+  }
+
+  recipesFiltered = searchFilteredRecipes;
 
   if (searchString.length < 3) {
     searchMessage.style.display = "none";
-    tagManager(recipes);
+    tagManager();
     return;
   }
 
@@ -489,7 +459,6 @@ function mediaUpdate(items) {
   displayItems(items, listAppliances, 'appliance');
   displayItems(items, listUstensils, 'ustensils');
   addTag();
-  closeTagButton();
 }
 
 /*  "init" function is called on page load and performs several actions to set up page.       **
@@ -499,6 +468,7 @@ function mediaUpdate(items) {
 **  "mainFindSearch" element is also set to listen for keyboard input, and if the "Backspace" **
 **  key is pressed, "recipesFiltered" array is reset to the full "recipes" array and          **
 **  "displayRecipes" and "mediaUpdate" functions are called to display all recipes again.     */
+
 let debounceTimer;
 async function init() {
   displayRecipes(recipes);
@@ -506,26 +476,37 @@ async function init() {
   displayItems(recipes, listAppliances, 'appliance');
   displayItems(recipes, listUstensils, 'ustensils');
   addTag();
-  closeTagButton();
-  
+
   mainFindSearch.addEventListener('keyup', (e) => {
-    const searchString = normalizeString(mainFindSearch.value.toLowerCase());
+    const searchString = mainFindSearch.value.toLowerCase().trim();
   
     if (searchString.length > 0 && searchString.length < 3) {
       searchMessage.innerHTML = `Veuillez entrer au moins 3 caractères pour commencer à lancer une recherche.`;
       searchMessage.style.display = 'block';
       console.log("Search string too short.");
-      mediaUpdate(recipesFiltered);
-      displayRecipes(recipesFiltered);
+  
+      if (e.key === 'Backspace') {
+        tagManager();
+      } else {
+        mediaUpdate(recipesFiltered);
+        displayRecipes(recipesFiltered);
+      }
     } else {
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
-        mainSearchBarFilter();
-        tagManager(); 
-        displayRecipes(recipesFiltered);
-        mediaUpdate(recipesFiltered);
+        if (searchString.length >= 3) {
+          mainSearchBarFilter();
+          mediaUpdate(recipesFiltered);
+          displayRecipes(recipesFiltered);
+        } else if (e.key === 'Backspace') {
+          tagManager();
+        } else {
+          searchMessage.style.display = 'none';
+        }
       }, 300);
     }
   });
 }
 init();
+
+

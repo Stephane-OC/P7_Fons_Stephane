@@ -387,25 +387,27 @@ function tagManager() {
       );
     return ingredientsMatch && applianceMatch && ustensilsMatch && searchMatch;
   });
-
+  
   mediaUpdate(recipesFiltered);
 }
 
 
-/*  "mainSearchBarFilter" function is called when a user types into main search bar.             **
-**  It first normalizes input and retrieves current active tags on page.                         **
-**  If input length is less than 3 characters, it calls the "tagManager" function with           **
-**  original recipe list. If the input length is 3 or more characters, it filters recipes based  **
-**  on search string (input) and active tags, considering recipe names, ingredients, and         **
-**  descriptions. It then calls the "tagManager" function to update displayed recipes            **
-**  based on filtered list. If search string has 3 or more characters but no matching            **
-**  recipes are found, it shows a message to user suggesting alternative search queries.         */
+/*  The "mainSearchBarFilter" function is called when a user types into main search bar                           **
+**  It first normalizes input and retrieves the currently active tags on page.                                    **
+**  If input length is less than 3 characters, it calls "tagManager" function with original recipe list.          **
+**  If input length is 3 or more characters, it filters recipes based on search string (input) and active         **
+**  tags, considering recipe names, ingredients, and descriptions. It then updates and displays filtered recipes  **
+**  in real-time. If search string has 3 or more characters but no matching recipes are found, it displays a      **
+**  message to user suggesting alternative search queries.                                                        */
 
 function mainSearchBarFilter() {
   const searchString = normalizeString(mainFindSearch.value.toLowerCase());
   console.log("searchString:", searchString);
 
   const searchMessage = document.getElementById("searchMessage");
+
+  // Clear the recipes container
+  recipesContain.innerHTML = "";
 
   // Filter recipes based on the main search string
   const searchFilteredRecipes = [];
@@ -430,6 +432,11 @@ function mainSearchBarFilter() {
     }
     if (nameMatchesSearch || descriptionMatchesSearch || ingredientMatchesSearch) {
       searchFilteredRecipes.push(recipes[i]);
+      
+      // Display the filtered recipe in real-time
+      const recipeTemplate = recipesFactory(recipes[i]);
+      const recipeDom = recipeTemplate.getRecipes();
+      recipesContain.appendChild(recipeDom);
     }
   }
 
@@ -472,41 +479,38 @@ function mediaUpdate(items) {
 let debounceTimer;
 async function init() {
   displayRecipes(recipes);
-  displayItems(recipes, listIngredients, 'ingredients');
-  displayItems(recipes, listAppliances, 'appliance');
-  displayItems(recipes, listUstensils, 'ustensils');
+  displayItems(recipes, listIngredients, "ingredients");
+  displayItems(recipes, listAppliances, "appliance");
+  displayItems(recipes, listUstensils, "ustensils");
   addTag();
 
-  mainFindSearch.addEventListener('keyup', (e) => {
+  mainFindSearch.addEventListener("keyup", (e) => {
     const searchString = mainFindSearch.value.toLowerCase().trim();
-  
+
     if (searchString.length > 0 && searchString.length < 3) {
       searchMessage.innerHTML = `Veuillez entrer au moins 3 caractères pour commencer à lancer une recherche.`;
-      searchMessage.style.display = 'block';
+      searchMessage.style.display = "block";
       console.log("Search string too short.");
-  
-      if (e.key === 'Backspace') {
+      
+      if (e.key === "Backspace" && searchString.length == 2) {
+        recipesFiltered = recipes;
         tagManager();
-      } else {
         mediaUpdate(recipesFiltered);
         displayRecipes(recipesFiltered);
       }
     } else {
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
-        if (searchString.length >= 3) {
-          mainSearchBarFilter();
-          mediaUpdate(recipesFiltered);
-          displayRecipes(recipesFiltered);
-        } else if (e.key === 'Backspace') {
+        searchMessage.style.display = "none";
+        if (e.key === "Backspace") {
+          recipesFiltered = recipes;
           tagManager();
-        } else {
-          searchMessage.style.display = 'none';
         }
+        mainSearchBarFilter();
+        displayRecipes(recipesFiltered);
+        mediaUpdate(recipesFiltered);
       }, 300);
     }
   });
 }
 init();
-
-

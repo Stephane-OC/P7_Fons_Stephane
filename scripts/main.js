@@ -259,17 +259,17 @@ function addTag() {
     selectedTagContainer.innerHTML = "";
     selectedTagContainer.classList.add("" + type + "-inlinetag");
     selectedTagContainer.classList.add("active");
-    // Créez les éléments nécessaires
+    // Create necessary elements
     const itemDiv = document.createElement("div");
     const closeButton = document.createElement("i");
 
-    // Ajoutez les classes et les attributs nécessaires à chaque élément
+    // Add necessary classes and attributes to each element
     itemDiv.className = `items-${type}`;
     itemDiv.textContent = selectedTag;
 
     closeButton.className = "far fa-times-circle close-button";
 
-    // Ajoutez les éléments créés à selectedTagContainer
+    // Add created elements to selectedTagContainer
     selectedTagContainer.appendChild(itemDiv);
     selectedTagContainer.appendChild(closeButton);
     filterTag.appendChild(selectedTagContainer);
@@ -283,7 +283,7 @@ function addTag() {
     );
     closeTagButton();
 
-    // Reset the input value and placeholder
+    // Reset input value and placeholder
     input.value = "";
     input.placeholder = nom;
     tagManager();
@@ -401,9 +401,9 @@ function tagManager() {
   });
 
   // Afficher le nombre de recettes après filtrage par tag
+
   console.log("Nombre de recettes après filtrage par tag:", recipesFiltered.length);
 
-  //displayRecipes à appeler si je supprime dans mediaUpdate
   mediaUpdate(recipesFiltered);
   displayRecipes(recipesFiltered);
 }

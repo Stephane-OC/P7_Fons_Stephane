@@ -19,7 +19,6 @@ const utensilsSearch = document.getElementById("ustensils");
 
 const cssProperties = document.querySelectorAll(".advanced-find");
 let recipesFiltered = recipes;
-let tagArrayselected = [];
 
  /*  "displayRecipes" function retrieves "recipesContain" DOM element, clears its content,             **
  **  generates recipe cards for each item in the recipes array by using "recipesFactory"               **
@@ -110,9 +109,9 @@ const inputsInfo = {
 **  function appends a unique item to list as a list item element.                    */
 
 /*                                    PARAMETERS                                        **
-**  items: an array of objects representing items to be displayed in list (recipe ingredients, appliances or ustensils) **
-**  listElement: DOM elements containing list where items will be displayed (listIngredients, listAppliances or listUstensils)   **
-**  property: property of item object used to display its value ('ingredients', 'appliances', or 'ustensils')                   */
+**  items: an array of objects representing items to be displayed in list (recipe ingredients, appliances or ustensils)        **
+**  listElement: DOM elements containing list where items will be displayed (listIngredients, listAppliances or listUstensils) **
+**  property: property of item object used to display its value ('ingredients', 'appliances', or 'ustensils')                  */
 
 function displayItems(items, listElement, property) {
   let allItems = [];
@@ -122,18 +121,18 @@ function displayItems(items, listElement, property) {
     if (Array.isArray(currentItem)) {
       currentItem.forEach((c) => {
         if (typeof c === "object" && c !== null) {
-          if (c.ingredient && c.ingredient.trim() !== '') {
+          if (c.ingredient && c.ingredient.trim() !== "") {
             allItems.push(c.ingredient.toLowerCase());
           }
-        } else if (c && c.trim() !== '') {
+        } else if (c && c.trim() !== "") {
           allItems.push(c.toLowerCase());
         }
       });
     } else if (typeof currentItem === "object" && currentItem !== null) {
-      if (currentItem.ingredient && currentItem.ingredient.trim() !== '') {
+      if (currentItem.ingredient && currentItem.ingredient.trim() !== "") {
         allItems.push(currentItem.ingredient.toLowerCase());
       }
-    } else if (currentItem && currentItem.trim() !== '') {
+    } else if (currentItem && currentItem.trim() !== "") {
       allItems.push(currentItem.toLowerCase());
     }
   }
@@ -142,14 +141,25 @@ function displayItems(items, listElement, property) {
     .sort();
 
   const searchElement = document.querySelector(`#${property}-search`);
-  const searchTerm = searchElement ? searchElement.value.trim().toLowerCase() : '';
+  const searchTerm = searchElement
+    ? searchElement.value.trim().toLowerCase()
+    : "";
 
   const filteredItems = uniqueItems.filter((item) => {
     return item.includes(searchTerm);
   });
 
   for (let j = 0; j < filteredItems.length; j++) {
-    listElement.innerHTML += `<li class="item ${property}-result" data-value='${filteredItems[j]}'>${filteredItems[j]}</li>`;
+    // Create a new li element using createElement
+    const liElement = document.createElement("li");
+
+    // Add necessary classes and attributes to li element
+    liElement.classList.add("item", `${property}-result`);
+    liElement.dataset.value = filteredItems[j];
+    liElement.textContent = filteredItems[j];
+
+    // Append li element to listElement using appendChild
+    listElement.appendChild(liElement);
   }
 }
 
@@ -159,11 +169,9 @@ function displayItems(items, listElement, property) {
 **  are not current list.                                                               **
 **                                                                                      **
 **                                    PARAMETERS                                        **
-**  currentList: DOM element of list that is currently in focus                         **
-**  currentInput: input field DOM element associated with current list                  **
-**  placeholder: placeholder text for current input field                               */
+**  currentList: DOM element of list that is currently in focus                         */
 
-function closeOtherLists(currentList, currentInput, placeholder) {
+function closeOtherLists(currentList) {
   const otherLists = document.querySelectorAll('.advanced-find');
 
   otherLists.forEach((list) => {
@@ -251,11 +259,28 @@ function addTag() {
     selectedTagContainer.innerHTML = "";
     selectedTagContainer.classList.add("" + type + "-inlinetag");
     selectedTagContainer.classList.add("active");
-    selectedTagContainer.innerHTML = `<div class='items-${type}' tag'>${selectedTag}</div> <i class='far fa-times-circle close-button'></i>`;
+    // Créez les éléments nécessaires
+    const itemDiv = document.createElement("div");
+    const closeButton = document.createElement("i");
+
+    // Ajoutez les classes et les attributs nécessaires à chaque élément
+    itemDiv.className = `items-${type}`;
+    itemDiv.textContent = selectedTag;
+
+    closeButton.className = "far fa-times-circle close-button";
+
+    // Ajoutez les éléments créés à selectedTagContainer
+    selectedTagContainer.appendChild(itemDiv);
+    selectedTagContainer.appendChild(closeButton);
     filterTag.appendChild(selectedTagContainer);
 
     deactivateList(cssProperties[index], input, nom);
-    console.log("Tag clicked:", event.target.innerText, "Filtered recipes:", recipesFiltered);
+    console.log(
+      "Tag clicked:",
+      event.target.innerText,
+      "Filtered recipes:",
+      recipesFiltered
+    );
     closeTagButton();
 
     // Reset the input value and placeholder
@@ -263,7 +288,6 @@ function addTag() {
     input.placeholder = nom;
     tagManager();
   };
-  
 
   for (let i = 0; i < ingredientsFilter.length; i++) {
     ingredientsFilter[i].addEventListener("click", (e) => {
@@ -433,7 +457,7 @@ function mainSearchBarFilter() {
   }
 
   if (searchFilteredRecipes.length == 0) {
-    searchMessage.innerHTML = `Aucune recette ne correspond à votre critère, veuillez réessayer...`;
+    searchMessage.textContent = "Aucune recette ne correspond à votre critère, veuillez réessayer...";
     searchMessage.style.display = "block";
   } else {
     searchMessage.style.display = "none";
@@ -473,7 +497,7 @@ async function init() {
     const searchString = mainFindSearch.value.toLowerCase().trim();
 
     if (searchString.length > 0 && searchString.length < 3) {
-      searchMessage.innerHTML = `Veuillez entrer au moins 3 caractères pour commencer à lancer une recherche.`;
+      searchMessage.textContent = "Veuillez entrer au moins 3 caractères pour commencer à lancer une recherche.";
       searchMessage.style.display = "block";
       console.log("Search string too short.");
       

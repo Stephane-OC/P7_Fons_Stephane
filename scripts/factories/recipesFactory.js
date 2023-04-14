@@ -15,26 +15,46 @@ function recipesFactory(recipe) {
   articleElement.dataset.servings = servings;
   articleElement.tabIndex = 0;
 
-  /*  This line uses map() method to create an array of <li> elements for each          **
-  **  ingredient in recipe object, and then uses join() method to concatenate elements  **
-  **  into a single string of HTML.                                                     */
-  const ingredientList = ingredients.map((ingredient) => `<li>${ingredient.ingredient}: ${ingredient.quantity ?? ''} ${ingredient.unit ?? ''}</li>`).join('');
+  const divImg = document.createElement('div');
+  divImg.classList.add('recipe-img');
 
-  articleElement.innerHTML = `
-    <div class="recipe-img"></div>
-    <div class="recipe-details">
-      <div class="recipe-head-text">
-        <h2>${name}</h2>
-        <span class="timer"><i class="far fa-clock"></i> ${time} min</span>
-      </div>
-      <div class="contain-details">
-        <ul class="recipes-ingredients">
-          ${ingredientList}
-        </ul>
-        <p class="recipes-description">${description.substring(0, 180)}${description.length > 180 ? "..." : ""}</p>
-      </div>
-    </div>
-  `;
+  const divDetails = document.createElement('div');
+  divDetails.classList.add('recipe-details');
+
+  const divHeadText = document.createElement('div');
+  divHeadText.classList.add('recipe-head-text');
+
+  const h2 = document.createElement('h2');
+  h2.textContent = name;
+
+  const spanTimer = document.createElement('span');
+  spanTimer.classList.add('timer');
+  spanTimer.innerHTML = `<i class="far fa-clock"></i> ${time} min`;
+
+  const divContainDetails = document.createElement('div');
+  divContainDetails.classList.add('contain-details');
+
+  const ulIngredients = document.createElement('ul');
+  ulIngredients.classList.add('recipes-ingredients');
+  ingredients.forEach((ingredient) => {
+    const li = document.createElement('li');
+    li.textContent = `${ingredient.ingredient}: ${ingredient.quantity ?? ''} ${ingredient.unit ?? ''}`;
+    ulIngredients.appendChild(li);
+  });
+
+  const pDescription = document.createElement('p');
+  pDescription.classList.add('recipes-description');
+  pDescription.textContent = `${description.substring(0, 180)}${description.length > 180 ? "..." : ""}`;
+
+  // Append elements
+  divHeadText.appendChild(h2);
+  divHeadText.appendChild(spanTimer);
+  divContainDetails.appendChild(ulIngredients);
+  divContainDetails.appendChild(pDescription);
+  divDetails.appendChild(divHeadText);
+  divDetails.appendChild(divContainDetails);
+  articleElement.appendChild(divImg);
+  articleElement.appendChild(divDetails);
 
   return { recipe, getRecipes: () => articleElement };
 }

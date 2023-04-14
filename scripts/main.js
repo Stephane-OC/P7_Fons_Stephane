@@ -233,11 +233,11 @@ function normalizeString(str) {
 }
 
 
-/*  "addTag" function adds a selected tag to search bar and updates filters.          **
-**  Function creates a new div element for selected tag, sets its class based         **
-**  on tag type,and appends to search bar. deactivates corresponding result list and  **
-**  updates filter by filtering recipes based on selected tag value. Finally,         **
-**  "mediaUpdate" function is called to update UI with filtered recipes.              */
+/* "addTag" function adds selected tag to search bar and updates filters.                **
+** Function creates a new div element for the selected tag and sets its class based      **
+** on tag type. It then appends tag to search bar, deactivates corresponding             **
+** result list, and updates the filter by filtering recipes based on selected tag value. **
+** Finally, it resets the input value and placeholder and calls "tagManager" function.   */
 
 function addTag() {
   const ingredientsFilter = document.querySelectorAll(".ingredients-result");
@@ -255,27 +255,13 @@ function addTag() {
     filterTag.appendChild(selectedTagContainer);
 
     deactivateList(cssProperties[index], input, nom);
-
-    tagArrayselected.push(selectedTag);
-    recipesFiltered = recipesFiltered.filter((recipe) => {
-      switch (index) {
-        case 0:
-          return recipe.ingredients.some((el) => el.ingredient.toLowerCase().includes(selectedTag.toLowerCase()));
-        case 1:
-          return recipe.appliance.toLowerCase().includes(selectedTag.toLowerCase());
-        case 2:
-          return recipe.ustensils.some((el) => el.toLowerCase().includes(selectedTag.toLowerCase()));
-        default:
-          return false;
-      }
-    });
-
-    mediaUpdate(recipesFiltered);
+    console.log("Tag clicked:", event.target.innerText, "Filtered recipes:", recipesFiltered);
     closeTagButton();
 
     // Reset the input value and placeholder
     input.value = "";
     input.placeholder = nom;
+    tagManager();
   };
   
 
@@ -339,13 +325,13 @@ function removeTag(event) {
 
 function tagManager() {
   const activeIngredients = Array.from(
-    document.querySelectorAll(".ingredients-inlinetag.active div")
+    document.querySelectorAll(".ingredients-inlinetag.active .items-ingredients")
   ).map((tag) => tag.innerText.trim().toLowerCase());
   const activeAppliances = Array.from(
-    document.querySelectorAll(".appareils-inlinetag.active div")
+    document.querySelectorAll(".appareils-inlinetag.active .items-appareils")
   ).map((tag) => tag.innerText.trim().toLowerCase());
   const activeUstensils = Array.from(
-    document.querySelectorAll(".ustensils-inlinetag.active div")
+    document.querySelectorAll(".ustensils-inlinetag.active .items-ustensils")
   ).map((tag) => tag.innerText.trim().toLowerCase());
 
   const searchString = mainFindSearch.value.toLowerCase().trim();
@@ -359,6 +345,7 @@ function tagManager() {
     if (searchString.length === 0 || searchString.length >= 3) {
       recipesFiltered = recipes;
       mediaUpdate(recipesFiltered);
+      displayRecipes(recipesFiltered);
     }
     return;
   }
@@ -380,6 +367,7 @@ function tagManager() {
       );
     const searchMatch =
       searchString.length === 0 ||
+      searchString.length < 3 ||
       recipe.name.toLowerCase().includes(searchString) ||
       recipe.description.toLowerCase().includes(searchString) ||
       recipe.ingredients.some((el) =>
@@ -387,10 +375,14 @@ function tagManager() {
       );
     return ingredientsMatch && applianceMatch && ustensilsMatch && searchMatch;
   });
-  
-  mediaUpdate(recipesFiltered);
-}
 
+  // Afficher le nombre de recettes après filtrage par tag
+  console.log("Nombre de recettes après filtrage par tag:", recipesFiltered.length);
+
+  //displayRecipes à appeler si je supprime dans mediaUpdate
+  mediaUpdate(recipesFiltered);
+  displayRecipes(recipesFiltered);
+}
 
 /*  The "mainSearchBarFilter" function is called when a user types into main search bar                           **
 **  It first normalizes input and retrieves the currently active tags on page.                                    **
@@ -411,8 +403,8 @@ function mainSearchBarFilter() {
 
   // Filter recipes based on the main search string
   const searchFilteredRecipes = [];
-  for (let i = 0; i < recipes.length; i++) {
-    const { name, ingredients, description } = recipes[i];
+  for (let i = 0; i < recipesFiltered.length; i++) {
+    const { name, ingredients, description } = recipesFiltered[i];
     const nameMatchesSearch = normalizeString(name)
       .toLowerCase()
       .includes(searchString);
@@ -431,17 +423,18 @@ function mainSearchBarFilter() {
       }
     }
     if (nameMatchesSearch || descriptionMatchesSearch || ingredientMatchesSearch) {
-      searchFilteredRecipes.push(recipes[i]);
+      searchFilteredRecipes.push(recipesFiltered[i]);
       
       // Display the filtered recipe in real-time
-      const recipeTemplate = recipesFactory(recipes[i]);
+      const recipeTemplate = recipesFactory(recipesFiltered[i]);
       const recipeDom = recipeTemplate.getRecipes();
       recipesContain.appendChild(recipeDom);
     }
   }
 
   recipesFiltered = searchFilteredRecipes;
-
+  console.log("Nombre de recettes après filtrage par tag:", recipesFiltered.length);
+  
   if (searchString.length < 3) {
     searchMessage.style.display = "none";
     tagManager();
@@ -456,12 +449,12 @@ function mainSearchBarFilter() {
   }
 }
 
+
 /*  "mediaUpdate" function updates UI to display new recipe data based on given items array. **
 **  Function first updates recipe cards by calling "displayRecipes" function, then updates   ** 
 **  ingredient, appliance, and ustensil lists by calling their respective display functions  */
 
 function mediaUpdate(items) {
-  displayRecipes(items);
   displayItems(items, listIngredients, 'ingredients');
   displayItems(items, listAppliances, 'appliance');
   displayItems(items, listUstensils, 'ustensils');
@@ -497,6 +490,7 @@ async function init() {
         tagManager();
         mediaUpdate(recipesFiltered);
         displayRecipes(recipesFiltered);
+        console.log("Moins de 3 caractère et Backspace")
       }
     } else {
       clearTimeout(debounceTimer);
@@ -505,6 +499,7 @@ async function init() {
         if (e.key === "Backspace") {
           recipesFiltered = recipes;
           tagManager();
+          console.log("Plus de 3 caractère et Backspace")
         }
         mainSearchBarFilter();
         displayRecipes(recipesFiltered);

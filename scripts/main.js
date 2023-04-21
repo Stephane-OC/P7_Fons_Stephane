@@ -407,7 +407,60 @@ function tagManager() {
   displayRecipes(recipesFiltered);
 }
 
+/* "mainSearchBarFilter" function filters and displays recipes based on main search input value. **
+** It uses searchString to filter recipes by their name, ingredients, and description.           **
+** It then updates the UI with the filtered recipes and shows a message if no recipes are found. */
 
+function mainSearchBarFilter() {
+  const searchString = normalizeString(mainFindSearch.value.toLowerCase());
+  console.log("searchString:", searchString);
+
+  const searchMessage = document.getElementById("searchMessage");
+
+  // Clear the recipes container
+  recipesContain.innerHTML = "";
+
+  // Filter recipes based on the main search string
+  const searchFilteredRecipes = recipesFiltered.filter((recipe) => {
+    const { name, ingredients, description } = recipe;
+    // Check if recipe name, description or ingredients match search string
+    const nameMatchesSearch = normalizeString(name)
+      .toLowerCase()
+      .includes(searchString);
+    const descriptionMatchesSearch = normalizeString(description)
+      .toLowerCase()
+      .includes(searchString);
+    const ingredientMatchesSearch = ingredients.some((ingredient) =>
+      normalizeString(ingredient.ingredient)
+        .toLowerCase()
+        .includes(searchString)
+    );
+
+    return nameMatchesSearch || descriptionMatchesSearch || ingredientMatchesSearch;
+  });
+
+  // Display the filtered recipes in real-time
+  searchFilteredRecipes.forEach((filteredRecipe) => {
+    const recipeTemplate = recipesFactory(filteredRecipe);
+    const recipeDom = recipeTemplate.getRecipes();
+    recipesContain.appendChild(recipeDom);
+  });
+
+  recipesFiltered = searchFilteredRecipes;
+  console.log("NB recettes après filtrage par recherche:", recipesFiltered.length);
+  if (searchString.length < 3) {
+    searchMessage.style.display = "none";
+    tagManager();
+    return;
+  }
+
+  if (searchFilteredRecipes.length == 0) {
+    searchMessage.textContent = "Aucune recette ne correspond à votre critère, veuillez réessayer...";
+    searchMessage.style.display = "block";
+  } else {
+    searchMessage.style.display = "none";
+  }
+}
 
 /*  "mediaUpdate" function updates UI to display new recipe data based on given items array. **
 **  Function first updates recipe cards by calling "displayRecipes" function, then updates   ** 

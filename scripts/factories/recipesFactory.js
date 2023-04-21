@@ -1,3 +1,9 @@
+/*  "recipesFactory" function creates and returns a recipe card element based on given recipe object.   **
+**  It extracts relevant properties from recipe object, creates necessary DOM elements, and assigns     **
+**  appropriate attributes and content to these elements. Function then assembles recipe card by        **
+**  appending created elements to their respective parent elements, and finally returns an object with  **
+**  the recipe card element as a property.                                                              */
+
 function recipesFactory(recipe) {
   const { id, name, servings, ingredients, time, description, appliance, ustensils } = recipe;
 

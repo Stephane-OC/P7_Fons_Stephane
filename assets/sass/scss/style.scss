@@ -11,7 +11,7 @@ $utensil-color: #ed6454;
 }
 
 body {
-  font-family: "lato", sans-serif;  
+  font-family: "lato", sans-serif;
   margin: auto;
   max-width: 1280px;
   font-size: 18px;
@@ -142,7 +142,7 @@ ul {
   background-color: $second-color;
   height: 69px;
   margin-bottom: 20px;
-  border-radius: 5px; 
+  border-radius: 5px;
 }
 
 #main-find {
@@ -180,17 +180,55 @@ ul {
   padding: 0 20px 0 20px;
 }
 
+#appliances-contain {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  overflow-y: auto;
+  z-index: 1;
+  width: 667px;
+  max-height: 397px;
+  padding: 18px 25px 15px 25px;
+  top: 70px;
+  /* Ajustement de la position top en fonction du parent */
+  left: 0;
+  background-color: inherit;
+  border-radius: 0 0 5px 5px;
+  transition: transform 280ms;
+  transform-origin: top left;
+}
+
+#ustensils-contain {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  overflow-y: auto;
+  z-index: 1;
+  width: 667px;
+  max-height: 397px;
+  padding: 18px 25px 15px 25px;
+  top: 70px;
+  /* Ajustement de la position top en fonction du parent */
+  left: 0;
+  background-color: inherit;
+  border-radius: 0 0 5px 5px;
+  transition: transform 280ms;
+  transform-origin: top left;
+}
+
 #ingredients-find {
   background-color: $ingredient-color;
 }
 
 #appliances-find {
   background-color: $appliance-color;
+  position: relative;
+  /* Ajout de la propriété position relative */
 }
 
 #ustensils-find {
+  position: relative;
   background-color: $utensil-color;
-  
 }
 
 .fa-chevron-down {
@@ -249,7 +287,7 @@ ul {
   padding-right: 5px;
 }
 
-.close-button{
+.close-button {
   cursor: pointer;
 }
 
@@ -274,6 +312,7 @@ ul {
   width: auto;
   color: white;
 }
+
 // appliances CSS Properties active
 .appareils-inlinetag.active {
   display: inline-flex;
@@ -304,6 +343,31 @@ ul {
   margin-right: 5px;
 }
 
-.item{
+.item {
   cursor: pointer;
+}
+
+
+
+@media (min-width: 320px) and (max-width: 767px) {
+
+  .ul-contain {
+    width: 80%;
+  }
+
+  .advanced-find.active {
+    width: 80%;
+  }
+
+  #appliances-contain {
+    width: 100%;
+  }
+
+  #ustensils-contain {
+    width: 100%;
+  }
+
+  #recipes-contain {
+    justify-content: center;
+  }
 }

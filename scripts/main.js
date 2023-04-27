@@ -241,11 +241,12 @@ function normalizeString(str) {
 }
 
 
-/* "addTag" function adds selected tag to search bar and updates filters.                **
-** Function creates a new div element for the selected tag and sets its class based      **
-** on tag type. It then appends tag to search bar, deactivates corresponding             **
-** result list, and updates the filter by filtering recipes based on selected tag value. **
-** Finally, it resets the input value and placeholder and calls "tagManager" function.   */
+/* "addTag" function adds selected tag to search bar and updates filters.               **
+** Function creates a new div element for selected tag and sets its class based         **
+** on tag type. It checks if tag already exists, and if it does, it doesn't add it      **
+** again. Then, it appends tag to search bar, deactivates the corresponding             **
+** result list, and updates the filter by filtering recipes based on selected tag value.**
+** Finally, it resets input value and placeholder and calls the "tagManager" function.  */
 
 function addTag() {
   const ingredientsFilter = document.querySelectorAll(".ingredients-result");
@@ -254,6 +255,22 @@ function addTag() {
 
   const addTagList = (event, nom, type, index, input) => {
     let selectedTag = event.target.innerText;
+  
+    // Check if the tag already exists
+    const existingTag = document.querySelector(
+      `.${type}-inlinetag .items-${type}[data-tag-value="${selectedTag}"]`
+    );
+    // If the tag exists, do not add it again
+    if (existingTag) {
+      return;
+    }
+    const dropdownItem = document.querySelector(
+      `[data-value="${selectedTag.toLowerCase().trim()}"]:not(.disabled)`
+    );
+    if (!dropdownItem) {
+      return;
+    }
+    dropdownItem.classList.add("disabled");
     const filterTag = document.querySelector("#find-tag");
     let selectedTagContainer = document.createElement("div");
     selectedTagContainer.innerHTML = "";
@@ -262,18 +279,19 @@ function addTag() {
     // Create necessary elements
     const itemDiv = document.createElement("div");
     const closeButton = document.createElement("i");
-
+  
     // Add necessary classes and attributes to each element
     itemDiv.className = `items-${type}`;
     itemDiv.textContent = selectedTag;
-
+    itemDiv.setAttribute("data-tag-value", selectedTag); // Add data attribute
+  
     closeButton.className = "far fa-times-circle close-button";
-
+  
     // Add created elements to selectedTagContainer
     selectedTagContainer.appendChild(itemDiv);
     selectedTagContainer.appendChild(closeButton);
     filterTag.appendChild(selectedTagContainer);
-
+  
     deactivateList(cssProperties[index], input, nom);
     console.log(
       "Tag clicked:",
@@ -282,7 +300,7 @@ function addTag() {
       recipesFiltered
     );
     closeTagButton();
-
+  
     // Reset input value and placeholder
     input.value = "";
     input.placeholder = nom;
